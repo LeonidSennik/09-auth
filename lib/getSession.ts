@@ -1,16 +1,21 @@
-import { jwtVerify } from 'jose';
+import { cookies } from 'next/headers';
 
-export async function getSession(token: string | undefined) {
-  if (!token) return null;
+const BASE_URL = 'https://notehub-api.goit.study';
 
-  try {
-    const { payload } = await jwtVerify(
-      token,
-      new TextEncoder().encode(process.env.JWT_SECRET)
-    );
+export async function getSession() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('accessToken')?.value;
 
-    return { email: payload.email }; 
-  } catch {
-    return null;
-  }
+  const res = await fetch(`${BASE_URL}/auth/session`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      Cookie: `accessToken=${token}`,
+    },
+  });
+
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  return data?.email ? data : null;
 }
