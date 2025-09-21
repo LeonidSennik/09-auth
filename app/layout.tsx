@@ -1,4 +1,3 @@
-
 import { Geist, Geist_Mono } from 'next/font/google';
 import TanStackProvider from '../components/TanStackProvider/TanStackProvider';
 import Header from '../components/Header/Header';

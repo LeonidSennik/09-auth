@@ -7,19 +7,23 @@ import css from './Profile.module.css';
 import Image from 'next/image';
 
 export default function ProfilePageClient() {
-  const { user, hasHydrated } = useAuthStore();
+  const { user, hasHydrated, setUser } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
     if (hasHydrated && !user) {
-      router.push('/sign-in');
+      fetch('/api/auth/session')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.email) {
+            setUser(data); 
+          } else {
+            router.push('/sign-in');
+          }
+        });
     }
-  }, [hasHydrated, user, router]);
+  }, [hasHydrated, user, router, setUser]);
 
-  useEffect(() => {
-  console.log('hasHydrated:', hasHydrated);
-  console.log('user:', user);
-}, [hasHydrated, user]);
   if (!hasHydrated) return <p className={css.loading}>Loading...</p>;
   if (!user) return null;
 
@@ -52,4 +56,5 @@ export default function ProfilePageClient() {
     </main>
   );
 }
+
 
