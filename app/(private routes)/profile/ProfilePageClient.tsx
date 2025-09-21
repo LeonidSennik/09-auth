@@ -16,6 +16,10 @@ export default function ProfilePageClient() {
     }
   }, [hasHydrated, user, router]);
 
+  useEffect(() => {
+  console.log('hasHydrated:', hasHydrated);
+  console.log('user:', user);
+}, [hasHydrated, user]);
   if (!hasHydrated) return <p className={css.loading}>Loading...</p>;
   if (!user) return null;
 

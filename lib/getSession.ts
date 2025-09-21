@@ -9,7 +9,7 @@ export async function getSession(token: string | undefined) {
       new TextEncoder().encode(process.env.JWT_SECRET)
     );
 
-    return { email: payload.email }; // або повний user, якщо зберігаєш більше
+    return { email: payload.email }; 
   } catch {
     return null;
   }
