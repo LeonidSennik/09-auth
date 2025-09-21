@@ -3,8 +3,8 @@
 import css from './NoteDetails.module.css';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { fetchNoteById } from '../../../lib/api/api';
-import type { Note } from '../../../types/note';
+import { fetchNoteById } from '../../../../lib/api/api';
+import type { Note } from '../../../../types/note';
 
 type Props =
   | { id: string; note?: undefined }

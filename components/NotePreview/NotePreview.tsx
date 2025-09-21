@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import css from './NotePreview.module.css';
-import NoteDetails from '../../app/notes/[id]/NoteDetails.client'; 
+import NoteDetails from '../../app/(private routes)/notes/[id]/NoteDetails.client'; 
 export default function NotePreview({ params }: { params: { id: string } }) {
   const router = useRouter();
 
