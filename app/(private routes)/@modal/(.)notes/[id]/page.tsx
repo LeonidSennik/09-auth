@@ -3,8 +3,8 @@ import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import { queryClient } from './queryClient';
 import NotePreview from './NotePreview.client';
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function Page({ params }: { params: { id: string } }) {
+  const { id } = params;
 
   await queryClient.prefetchQuery({
     queryKey: ['note', id],
