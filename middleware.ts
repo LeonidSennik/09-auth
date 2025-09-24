@@ -26,33 +26,20 @@ export async function middleware(request: NextRequest) {
   if (!session && refreshToken) {
     const refreshed = await refreshSession(refreshToken);
 
-    if (refreshed?.data?.user && refreshed.data.accessToken) {
-      session = refreshed.data.user;
+  if (refreshed?.user && refreshed.accessToken) {
+  session = refreshed.user;
 
-      const response = NextResponse.next();
+  const response = NextResponse.next();
 
-      response.cookies.set('accessToken', refreshed.data.accessToken, {
-        httpOnly: true,
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-      });
+  response.cookies.set('accessToken', refreshed.accessToken, {
+    httpOnly: true,
+    path: '/',
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
 
-      
-      if (
-        typeof refreshed.data === 'object' &&
-        'refreshToken' in refreshed.data &&
-        typeof refreshed.data.refreshToken === 'string'
-      ) {
-        response.cookies.set('refreshToken', refreshed.data.refreshToken, {
-          httpOnly: true,
-          path: '/',
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-        });
-      }
 
-      return response;
+  return response;
     }
   }
 
