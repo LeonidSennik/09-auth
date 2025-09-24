@@ -1,9 +1,35 @@
-import type { User } from '../../types/user';
 import { cookies } from 'next/headers';
-import { api } from './api'; 
-import type { AxiosResponse } from 'axios';
+import { api } from './api';
+import type { AxiosResponse, AxiosError } from 'axios';
+import type { User } from '../../types/user';
 import type { Note } from '../../types/note';
-import type { AxiosError } from 'axios';
+
+export interface FetchNotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
+
+
+export const getCurrentUser = async (): Promise<User | null> => {
+  const cookieStore = await cookies(); 
+  const accessToken = cookieStore.get('accessToken')?.value;
+
+  if (!accessToken) return null;
+
+  try {
+    const res = await api.get<User>('/auth/session', {
+      headers: {
+        Cookie: `accessToken=${accessToken}`,
+      },
+      withCredentials: true,
+    });
+
+    return res.data;
+  } catch {
+    return null;
+  }
+};
+
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
   try {
@@ -14,10 +40,8 @@ export const fetchNoteById = async (id: string): Promise<Note> => {
     throw new Error(err.response?.data?.message || 'Failed to fetch note');
   }
 };
-export interface FetchNotesResponse {
-  notes: Note[];
-  totalPages: number;
-}
+
+
 export const fetchNotes = async (
   page: number,
   tag?: string,
@@ -35,47 +59,28 @@ export const fetchNotes = async (
   return data;
 };
 
+
 export async function getSession(): Promise<AxiosResponse<{ email: string }> | null> {
-  const cookieStore = await cookies();
+  const cookieStore = await cookies(); 
   const accessToken = cookieStore.get('accessToken')?.value;
   const refreshToken = cookieStore.get('refreshToken')?.value;
 
   if (!accessToken && !refreshToken) return null;
 
   try {
-    const res = await api.get<{ email: string }>('/auth/session', {
+    const res = await api.get<{ email: string }>('/api/auth/session', {
       headers: {
         Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}`,
       },
       withCredentials: true,
     });
 
-    const newAccessToken = res.headers['x-access-token'];
-    const newRefreshToken = res.headers['x-refresh-token'];
-
-    if (newAccessToken) {
-      cookieStore.set('accessToken', newAccessToken, {
-        httpOnly: true,
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-      });
-    }
-
-    if (newRefreshToken) {
-      cookieStore.set('refreshToken', newRefreshToken, {
-        httpOnly: true,
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-      });
-    }
-
-    return res;
-  } catch {
+    return res; 
+  } catch (error) {
     return null;
   }
 }
+
 
 export async function checkSession(token: string): Promise<AxiosResponse<User> | null> {
   if (!token) return null;
@@ -94,7 +99,8 @@ export async function checkSession(token: string): Promise<AxiosResponse<User> |
   }
 }
 
-export async function refreshSession(refreshToken: string): Promise<AxiosResponse<{ user: User; accessToken: string }> | null> {
+
+export async function refreshSession(refreshToken: string): Promise<{ user: User; accessToken?: string } | null> {
   if (!refreshToken) return null;
 
   try {
@@ -105,8 +111,20 @@ export async function refreshSession(refreshToken: string): Promise<AxiosRespons
       withCredentials: true,
     });
 
-    return res;
+    const tokens = extractTokensFromHeaders(res.headers);
+    return { user: res.data.user, ...tokens };
   } catch {
     return null;
   }
+}
+
+
+function extractTokensFromHeaders(headers: AxiosResponse['headers']) {
+  const accessToken = headers['x-access-token'];
+  const refreshToken = headers['x-refresh-token'];
+
+  return {
+    accessToken,
+    refreshToken,
+  };
 }

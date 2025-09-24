@@ -1,5 +1,5 @@
 import ProfilePageClient from './ProfilePageClient';
-import { getCurrentUser } from '../../../lib/api/clientApi';
+import { getCurrentUser } from '../../../lib/api/serverApi';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -21,7 +21,11 @@ export const metadata: Metadata = {
 };
 
 export default async function ProfilePage() {
-  const user = await getCurrentUser(); 
+  const user = await getCurrentUser();
 
-  return <ProfilePageClient user={user} />;
-}
+  if (!user) {
+    
+    return <div>Користувач не знайдений</div>;
+  }
+
+  return <ProfilePageClient user={user} />;}
