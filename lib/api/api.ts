@@ -6,10 +6,6 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-export interface FetchNotesResponse {
-  notes: Note[];
-  totalPages: number;
-}
 
 export interface CreateNotePayload {
   title: string;
@@ -17,22 +13,7 @@ export interface CreateNotePayload {
   tag: NoteTag;
 }
 
-export const fetchNotes = async (
-  page: number,
-  tag?: string,
-  search?: string
-): Promise<FetchNotesResponse> => {
-  const params: Record<string, string | number> = {
-    page,
-    perPage: 12,
-  };
 
-  if (search?.trim()) params.search = search;
-  if (tag && tag.trim() !== '' && tag !== 'All') params.tag = tag;
-
-  const { data } = await api.get<FetchNotesResponse>('/notes', { params });
-  return data;
-};
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
   const { data } = await api.get<Note>(`/notes/${id}`);

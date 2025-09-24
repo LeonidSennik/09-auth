@@ -1,35 +1,32 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { getSession } from '../../lib/api/clientApi';
+import { checkSession, getCurrentUser } from '../../lib/api/clientApi';
 import { useAuthStore } from '../../lib/store/authStore';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
   const { setUser, clearAuth } = useAuthStore();
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const hydrateAuth = async () => {
       try {
-        const user = await getSession();
-        if (user?.email) {
+        const session = await checkSession();
+        if (session?.email) {
+          const user = await getCurrentUser();
           setUser(user);
         } else {
           clearAuth();
-          router.push('/sign-in');
         }
       } catch {
         clearAuth();
-        router.push('/sign-in');
       } finally {
         setLoading(false);
       }
     };
 
-    checkAuth();
-  }, [setUser, clearAuth, router]); 
+    hydrateAuth();
+  }, [setUser, clearAuth]);
 
   if (loading) return <p>Loading...</p>;
 

@@ -1,8 +1,8 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { deleteNote } from '../../services/noteService';
+import Link from 'next/link';
+import { deleteNote } from '../../lib/api/clientApi';
 import type { Note } from '../../types/note';
 import css from './NoteList.module.css';
 
@@ -12,7 +12,6 @@ interface NoteListProps {
 
 export default function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   const mutation = useMutation({
     mutationFn: deleteNote,
@@ -30,10 +29,6 @@ export default function NoteList({ notes }: NoteListProps) {
     }
   };
 
-  const handleViewDetails = (id: string) => {
-    router.push(`/notes/${id}`);
-  };
-
   return (
     <ul className={css.list}>
       {notes.map((note) => (
@@ -43,13 +38,13 @@ export default function NoteList({ notes }: NoteListProps) {
           <div className={css.footer}>
             <span className={css.tag}>{note.tag}</span>
             <div className={css.actions}>
-              <button
+              <Link
+                href={`/notes/${note.id}`}
                 className={css.link}
-                onClick={() => handleViewDetails(note.id)}
                 aria-label={`View details for ${note.title}`}
               >
                 View details
-              </button>
+              </Link>
               <button
                 className={css.button}
                 onClick={() => handleDelete(note.id)}

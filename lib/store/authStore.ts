@@ -11,8 +11,8 @@ interface AuthState {
   setHydrated: () => void;
 }
 
-export const useAuthStore = create(
-  persist<AuthState>(
+export const useAuthStore = create<AuthState>()(
+  persist(
     (set) => ({
       user: null,
       isAuthenticated: false,

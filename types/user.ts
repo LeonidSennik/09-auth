@@ -1,5 +1,7 @@
-export interface User {
+export type User = {
   email: string;
   username: string;
-  avatar?: string;
-}
+  avatar: string; 
+  accessToken?: string;
+  refreshToken?: string;
+};

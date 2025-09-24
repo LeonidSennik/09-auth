@@ -4,42 +4,47 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import css from './EditProfile.module.css';
+import { getCurrentUser, updateUserProfile } from '../../../../lib/api/clientApi';
+import { useAuthStore } from '../../../../lib/store/authStore';
 
 export default function EditProfilePage() {
   const router = useRouter();
+  const { setUser } = useAuthStore();
+
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [avatar, setAvatar] = useState('');
   const [loading, setLoading] = useState(true);
 
-
   useEffect(() => {
-    fetch('/api/auth/session')
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data?.email) {
+    const hydrate = async () => {
+      try {
+        const user = await getCurrentUser(); 
+        if (!user?.email) {
           router.push('/sign-in');
           return;
         }
-        setUsername(data.username || '');
-        setEmail(data.email || '');
-        setAvatar(data.avatar || '/default-avatar.png');
+
+        setUsername(user.username || '');
+        setEmail(user.email || '');
+        setAvatar(user.avatar || '/default-avatar.png');
         setLoading(false);
-      });
+      } catch {
+        router.push('/sign-in');
+      }
+    };
+
+    hydrate();
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await fetch('/api/users/me', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username }),
-    });
-
-    if (res.ok) {
+    try {
+      const updatedUser = await updateUserProfile({ username });
+      setUser(updatedUser); 
       router.push('/profile');
-    } else {
+    } catch {
       alert('Failed to update profile');
     }
   };

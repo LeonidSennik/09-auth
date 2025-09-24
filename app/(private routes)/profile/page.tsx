@@ -1,6 +1,8 @@
 import ProfilePageClient from './ProfilePageClient';
+import { getCurrentUser } from '../../../lib/api/clientApi';
+import type { Metadata } from 'next';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Профіль користувача — NoteHub',
   description: 'Перегляньте свій профіль, змініть ім’я або аватар.',
   openGraph: {
@@ -18,6 +20,8 @@ export const metadata = {
   },
 };
 
-export default function ProfilePage() {
-  return <ProfilePageClient />;
+export default async function ProfilePage() {
+  const user = await getCurrentUser(); 
+
+  return <ProfilePageClient user={user} />;
 }

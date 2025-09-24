@@ -1,32 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '../../../lib/store/authStore';
+import type { User } from '../../../types/user';
 import css from './Profile.module.css';
 import Image from 'next/image';
 
-export default function ProfilePageClient() {
-  const { user, hasHydrated, setUser } = useAuthStore();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (hasHydrated && !user) {
-      fetch('/api/auth/session')
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.email) {
-            setUser(data); 
-          } else {
-            router.push('/sign-in');
-          }
-        });
-    }
-  }, [hasHydrated, user, router, setUser]);
-
-  if (!hasHydrated) return <p className={css.loading}>Loading...</p>;
-  if (!user) return null;
-
+export default function ProfilePageClient({ user }: { user: User }) {
   return (
     <main className={css.mainContent}>
       <div className={css.profileCard}>
@@ -56,5 +34,4 @@ export default function ProfilePageClient() {
     </main>
   );
 }
-
 
